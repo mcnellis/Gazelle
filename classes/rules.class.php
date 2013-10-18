@@ -1,161 +1,431 @@
-<?php
+<?
 class Rules {
-
 	/**
-	 * Displays the site's "Golden Rules".
-	 *
+	 * Returns the RulesSectionID for the English section with Position 1
 	 */
-	public static function display_golden_rules() {
-		?>
-		<ol>
-			<li>All staff decisions must be respected. If you take issue with a decision, you must do so privately with the staff member who issued the decision or with an administrator of the site. Complaining about staff decisions in public or otherwise disrespecting staff members will not be taken lightly.</li>
-			<li>Access to this web site is a privilege, not a right, and it can be taken away from you for any reason.</li>
-			<li>One account per person per lifetime. Anyone creating additional accounts will be banned. Additionally, unless your account is immune to <a href="wiki.php?action=article&amp;id=8">inactivity pruning</a>, accounts are automatically disabled if one page load is not made at least once every four months.</li>
-			<li>Avatars must not exceed 256 kB or be vertically longer than 400 pixels. Avatars must be safe for work, be entirely unoffensive, and cannot contain any nudity or religious imagery. Use common sense.</li>
-			<li>Do not post our .torrent files on other sites. Every .torrent file has your personal passkey embedded in it. The tracker will automatically disable your account if you share your torrent files with others. You will not get your account back. This doesn't prohibit you from sharing the content on other sites, but does prohibit you from sharing the .torrent file.</li>
-			<li>Any torrent you are seeding to this tracker must only have our tracker's URL in it. Adding another tracker's URL will cause incorrect data to be sent to our tracker, and will lead to your getting disabled for cheating. Similarly, your client must have DHT and PEX (peer exchange) disabled for all <?=SITE_NAME?> torrents.</li>
-			<li>This is a torrent site which promotes sharing amongst the community. If you are not willing to give back to the community what you take from it, this site is not for you. In other words, we expect you to have an acceptable share ratio. If you download a torrent, please, seed the copy you have until there are sufficient people seeding the torrent data before you stop.</li>
-			<li>Do not browse the site using proxies or Tor. The site will automatically alert us. This includes VPNs with dynamic IP addresses.</li>
-			<li>Asking for invites to any site is not allowed anywhere on <?=SITE_NAME?> or our IRC network. Invites may be offered in the Invites forum, and nowhere else.</li>
-			<li>Trading and selling invites is strictly prohibited, as is offering them in public - this includes on any forum which is not a class-restricted section on an invitation-only torrent site. Responding to public requests for invites may also jeopardize your account and those whom you invite from a public request.</li>
-			<li>Trading, selling, sharing, or giving away your account is prohibited. If you no longer want your account, send a staff PM requesting that it be disabled.</li>
-			<li>You're completely responsible for the people you invite. If your invitees are caught cheating or trading/selling invites, not only will they be banned, so will you. Be careful who you invite. Invites are a precious commodity.</li>
-			<li>Be careful when sharing an IP address or a computer with a friend if they have (or have had) an account. From then on your accounts will be inherently linked and if one of you violates the rules, both accounts will be disabled along with any other accounts linked by IP address. This rule applies to logging into the site.</li>
-			<li>Attempting to find or exploit a bug in the site code is the worst possible offense you can commit. We have automatic systems in place for monitoring these activities, and committing them will result in the banning of you, your inviter, and your inviter's entire invite tree.</li>
-			<li>We're a community. Working together is what makes this place what it is. There are well over a thousand new torrents uploaded every day and sadly the staff aren't psychic. If you come across something that violates a rule, report it and help us better organize the site for you.</li>
-			<li>We respect the wishes of other sites here, as we wish for them to do the same. Please refrain from posting links to or full names for sites that do not want to be mentioned.</li>
-		</ol>
-<?
+	public static function get_default_section_id() {
+		$RulesSectionID = G::$Cache->get('default_rules_section_id');
+		if (empty($RulesSectionID)) {
+			G::$DB->query("
+				SELECT RulesSectionID
+				FROM rules_sections
+				WHERE language = 'English'
+				ORDER BY Position, SectionName ASC
+				LIMIT 1
+				");
+			list($RulesSectionID) = G::$DB->next_record(MYSQLI_NUM);
+			G::$Cache->cache_value('default_rules_section_id', $RulesSectionID, 0);
+		}
+		return $RulesSectionID;
 	}
 
 	/**
-	 * Displays the site's rules for tags.
+	 * Getter function for a single row from rules_sections
 	 *
-	 * @param boolean $OnUpload - whether it's being displayed on a torrent upload form
+	 * @param int $RulesSectionID
+	 * @return array with metadata about the section
 	 */
-	public static function display_site_tag_rules($OnUpload = false) {
-		?>
-		<ul>
-			<li>Tags should be comma-separated, and you should use a period (".") to separate words inside a tag&#8202;&mdash;&#8202;e.g. "<strong class="important_text_alt">hip.hop</strong>".</li>
-
-			<li>There is a list of official tags <?=($OnUpload ? 'to the left of the text box' : 'on <a href="upload.php">the torrent upload page</a>')?>. Please use these tags instead of "unofficial" tags (e.g. use the official "<strong class="important_text_alt">drum.and.bass</strong>" tag, instead of an unofficial "<strong class="important_text">dnb</strong>" tag). <strong>Please note that the "<strong class="important_text_alt">2000s</strong>" tag refers to music produced between 2000 and 2009.</strong></li>
-
-			<li>Avoid abbreviations if at all possible. So instead of tagging an album as "<strong class="important_text">alt</strong>", tag it as "<strong class="important_text_alt">alternative</strong>". Make sure that you use correct spelling.</li>
-
-			<li>Avoid using multiple synonymous tags. Using both "<strong class="important_text">prog.rock</strong>" and "<strong class="important_text_alt">progressive.rock</strong>" is redundant and annoying&#8202;&mdash;&#8202;just use the official "<strong class="important_text_alt">progressive.rock</strong>" tag.</li>
-
-			<li>Do not add "useless" tags, such as "<strong class="important_text">seen.live</strong>", "<strong class="important_text">awesome</strong>", "<strong class="important_text">rap</strong>" (is encompassed by "<strong class="important_text_alt">hip.hop</strong>"), etc. If an album is live, you can tag it as "<strong class="important_text_alt">live</strong>".</li>
-
-			<li>Only tag information on the album itself&#8202;&mdash;&#8202;<strong>not the individual release</strong>. Tags such as "<strong class="important_text">v0</strong>", "<strong class="important_text">eac</strong>", "<strong class="important_text">vinyl</strong>", "<strong class="important_text">from.oink</strong>", etc. are strictly forbidden. Remember that these tags will be used for other versions of the same album.</li>
-
-			<li><strong>You should be able to build up a list of tags using only the official tags <?=($OnUpload ? 'to the left of the text box' : 'on <a href="upload.php">the torrent upload page</a>')?>. If you are in any doubt about whether or not a tag is acceptable, do not add it.</strong></li>
-		</ul>
-<?
+	public static function get_section($RulesSectionID) {
+		$RulesSection = G::$Cache->get('section_'.$RulesSectionID);
+		if (empty($RulesSection)) {
+			G::$DB->query("
+				SELECT RulesSectionID, SectionName, Slug, Language, Position, Description, HasFilter, HasTableOfContents
+				FROM rules_sections
+				WHERE RulesSectionID = $RulesSectionID");
+			$RulesSection = G::$DB->next_record(MYSQLI_ASSOC);
+			G::$Cache->cache_value('section_'.$RulesSectionID, $RulesSection, 0);
+		}
+		return $RulesSection;
 	}
 
 	/**
-	 * Displays the site's rules for the forum
+	 * Getter function for all rows from rules_sections
 	 *
+	 * @return array of arrays with metadata about each section
 	 */
-	public static function display_forum_rules() {
-		?>
-		<ol>
-			<li>
-				Many forums (Tutorials, The Library, etc.) have their own set of rules. Make sure you read and take note of these rules before you attempt to post in one of these forums.
-			</li>
-			<li>
-				Don't use all capital letters, excessive !!! (exclamation marks) or ??? (question marks). It seems like you're shouting!
-			</li>
-			<li>
-				No lame referral schemes. This includes freeipods.com, freepsps.com, or any other similar scheme in which the poster gets personal gain from users clicking a link.
-			</li>
-			<li>
-				No asking for money for any reason whatsoever. We don't know or care about your friend who lost everything, or dying relative who wants to enjoy their last few moments alive by being given lots of money.
-			</li>
-			<li>
-				Do not inappropriately advertise your uploads. In special cases, it is acceptable to mention new uploads in an approved thread (e.g. <a href="forums.php?action=viewthread&amp;threadid=133982">New Users — We'll Snatch Your First 100% FLAC</a>), but be sure to carefully read the thread's rules before posting. It is also acceptable to discuss releases you have uploaded when conversing about the music itself. Blatant attempts to advertise your uploads outside of the appropriate forums or threads may result in a warning or the loss of forum privileges.
-			</li>
-			<li>
-				No posting music requests in forums. There's a request link at the top of the page; please use that instead.
-			</li>
-			<li>
-				No flaming; be pleasant and polite. Don't use offensive language, and don't be confrontational for the sake of confrontation.
-			</li>
-			<li>
-				Don't point out or attack other members' share ratios. A higher ratio does not make you better than someone else.
-			</li>
-			<li>
-				Try not to ask stupid questions. A stupid question is one that you could have found the answer to yourself with a little research, or one that you're asking in the wrong place. If you do the basic research suggested (i.e., read the rules/wiki) or search the forums and don't find the answer to your question, then go ahead and ask. Staff and First Line Support (FLS) are not here to hand-feed you the answers you could have found on your own with a little bit of effort.
-			</li>
-			<li>
-				Be sure you read all the sticky threads in a forum before you post.
-			</li>
-			<li>
-				Use descriptive and specific subject lines. This helps others decide whether your particular words of wisdom relate to a topic they care about.
-			</li>
-			<li>
-				Try not to post comments that don't add anything to the discussion. When you're just cruising through a thread in a leisurely manner, it's not too annoying to read through a lot of "hear, hear"'s and "I agree"'s. But if you're actually trying to find information, it's a pain in the neck. So save those one-word responses for threads that have degenerated to the point where none but true aficionados are following them any more.
-				<p>
-					Or short: NO spamming
-				</p>
-			</li>
-			<li>
-				Refrain from quoting excessively. When quoting someone, use only the portion of the quote that is absolutely necessary. This includes quoting pictures!
-			</li>
-			<li>
-				No posting of requests for serials or cracks. No links to warez or crack sites in the forums.
-			</li>
-			<li>
-				No political or religious discussions. These types of discussions lead to arguments and flaming users, something that will not be tolerated. The only exception to this rule is The Library forum, which exists solely for the purpose of intellectual discussion and civilized debate.
-			</li>
-			<li>
-				Don't waste other people's bandwidth by posting images of a large file size.
-			</li>
-			<li>
-				Be patient with newcomers. Once you have become an expert, it is easy to forget that you started out as a newbie too.
-			</li>
-			<li>
-				No requesting invites to any sites anywhere on the site or IRC. Invites may be <strong>offered</strong> in the invite forum, and nowhere else.
-			</li>
-			<li>
-				No language other than English is permitted in the forums. If we can't understand it, we can't moderate it.
-			</li>
-			<li>
-				Be cautious when posting mature content on the forums. All mature imagery must abide by <a href="wiki.php?action=article&amp;id=1063">the rules found here</a>. Gratuitously sexual or violent content which falls outside of the allowable categories will result in a warning or worse.
-			</li>
-			<li>
-				Mature content in posts must be properly tagged. The correct format is as follows: <strong>[mature=description] ...content... [/mature]</strong>, where "description" is a mandatory description of the post contents. Misleading or inadequate descriptions will be penalized.
-			</li>
-			<li>
-				Threads created for the exclusive purpose of posting mature imagery will be trashed. Mature content (including graphic album art) should be contextually relevant to the thread and/or forum you're posting in. Mature content is only allowed in: The Lounge, The Lounge +1, The Library, Music, Power Users, Elite, Torrent Masters, VIPs, Comics, Contests &amp; Designs, The Laboratory. If you are in doubt about a post's appropriateness, send a <a href="staffpm.php">Staff PM to the Forum Moderators</a> and wait for a reply before proceeding.
-			</li>
-		</ol>
-<?
+	public static function get_sections() {
+		$RulesSections = G::$Cache->get('rules_sections');
+		if (empty($RulesSections)) {
+			G::$DB->query('
+				SELECT RulesSectionID, SectionName, Slug, Language, Position, Description, HasFilter, HasTableOfContents
+				FROM rules_sections
+				ORDER BY Position, SectionName ASC');
+			$RulesSections = G::$DB->to_array(false, MYSQLI_ASSOC, false);
+			G::$Cache->cache_value('rules_sections', $RulesSections, 0);
+		}
+		return $RulesSections;
 	}
 
 	/**
-	 * Displays the site's rules for conversing on its IRC network
+	 * Used to prepare the $GroupedSections argument for
+	 * calling RulesView::render_other_sections($GroupedSections)
 	 *
+	 * @param array $RulesSections
+	 * @return array of arrays with sections of all languages grouped
+	 * together by section name
 	 */
-	public static function display_irc_chat_rules() {
-		?>
-		<ol>
-			<li>Staff have the final decision. If a staff member says stop and you continue, expect at least to be banned from the IRC network.</li>
-			<li>Be respectful to IRC Operators and Administrators. These people are site staff who volunteer their time for little compensation. They are there for the benefit of all and to aid in conflict resolution; do not waste their time.</li>
-			<li>Do not link shock sites or anything NSFW (not safe for work) without a warning. If in doubt, ask a staff member in <?=(BOT_HELP_CHAN)?> about it.</li>
-			<li>Excessive swearing will get you kicked; keep swearing to a minimum.</li>
-			<li>Do not leave Caps Lock enabled all the time. It gets annoying, and you will likely get yourself kicked.</li>
-			<li>No arguing. You can't win an argument over the Internet, so you are just wasting your time trying.</li>
-			<li>No prejudice, especially related to race, religion, politics, ethnic background, etc. It is highly suggested to avoid this entirely.</li>
-			<li>Flooding is irritating and will warrant you a kick. This includes, but is not limited to, automatic "now playing" scripts, pasting large amounts of text, and multiple consecutive lines with no relevance to the conversation at hand.</li>
-			<li>Impersonation of other members&#8202;&mdash;&#8202;particularly staff members&#8202;&mdash;&#8202;will not go unpunished. If you are uncertain of a user's identity, check their vhost.</li>
-			<li>Spamming is strictly forbidden. This includes, but is not limited to, personal sites, online auctions, and torrent uploads.</li>
-			<li>Obsessive annoyance&#8202;&mdash;&#8202;both to other users and staff&#8202;&mdash;&#8202;will not be tolerated.</li>
-			<li>Do not PM, DCC, or Query anyone you don't know or have never talked to without asking first; this applies specifically to staff.</li>
-			<li>No language other than English is permitted in the official IRC channels. If we cannot understand it, we cannot moderate it.</li>
-			<li>The offering, selling, trading, and giving away of invites to this or any other site on our IRC network is <strong>strictly forbidden</strong>.</li>
-			<li><strong>Read the channel topic before asking questions.</strong></li>
-		</ol>
-<?
+	public static function group_sections_by_name($RulesSections) {
+		$GroupedSections = array();
+		foreach ($RulesSections as $RulesSection) {
+			$SectionName = $RulesSection['SectionName'];
+			$RulesSectionID = $RulesSection['RulesSectionID'];
+			$GroupedSections[$SectionName][$RulesSectionID] = $RulesSection;
+		}
+		return $GroupedSections;
+	}
+
+	/**
+	 * Getter function to get the list of rules for a specific section
+	 * ordered by rule number.
+	 *
+	 * @param array $RulesSectionID
+	 * @return array of rules with all the data for each
+	 */
+	public static function get_rules($RulesSectionID) {
+		$RulesSectionID = (int) $RulesSectionID;
+		$CacheKey = 'section_'.$RulesSectionID.'_rules';
+		$Rules = G::$Cache->get($CacheKey);
+		if (empty($Rules)) {
+			// ORDER BY solution from http://stackoverflow.com/a/8712381
+			// The 4 in the REPEAT parameters means there are 4 sub-rules
+			// supported. i.e. You may have a rule that is 1.1.1.1.1
+			G::$DB->query("
+				SELECT RuleID, RulesSectionID, RuleNumber, Heading, Description
+				FROM rules
+				WHERE RulesSectionID = $RulesSectionID
+				ORDER BY
+					INET_ATON(
+						CONCAT(
+							RuleNumber,
+							REPEAT('.0', 4 - CHAR_LENGTH(RuleNumber) + CHAR_LENGTH(REPLACE(RuleNumber, '.', '')))
+						)
+					)
+			");
+			$Rules = G::$DB->to_array(false, MYSQLI_ASSOC);
+			G::$Cache->cache_value($CacheKey, $RulesSections, 0);
+		}
+		return $Rules;
+	}
+
+	/**
+	 * Getter function to get a section given the slug and language, used
+	 * to lookup the section given the URL which contains the slug and language
+	 *
+	 * @param string $Slug
+	 * @param string $Language
+	 * @return array of data for the found Section, false if no section found
+	 */
+	public static function get_section_by_slug_and_language($Slug, $Language) {
+		$Sections = self::get_sections();
+		foreach ($Sections as $Section) {
+			if ($Section['Slug'] == $Slug && $Section['Language'] == $Language) {
+				return $Section;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Helper function to calculate the depth of a given rule by counting
+	 * the number of periods used in the rule
+	 * e.g. Rule 1.1.1 has a depth of 2
+	 *
+	 * @param string $RuleNumber
+	 * @return int representing the depth of the rule
+	 */
+	public static function calculate_rule_depth($RuleNumber) {
+		return substr_count($RuleNumber, '.');
+	}
+
+	/**
+	 * Helper function to renumber rules before a rule is created (Offset = 1),
+	 * and after a rule is deleted (Offset = -1)
+	 *
+	 * @param int $RuleNumber
+	 * @param string $RuleNumber
+	 * @param int $Offset
+	 * @return boolean True if the renumbering is successful
+	 */
+	public static function renumber($SectionID, $RuleNumber, $Offset) {
+		// $Offset == 1 is renumber before create
+		// $Offset == -1 is renumber after delete
+		if ($Offset !== 1 && $Offset !== -1) {
+			return false;
+		}
+
+		// See self::get_rules for notes about these INET_ATON clauses
+		G::$DB->query("
+			SELECT RuleID, RuleNumber, INET_ATON(
+					CONCAT(
+						RuleNumber,
+						REPEAT('.0', 4 - CHAR_LENGTH(RuleNumber) + CHAR_LENGTH(REPLACE(RuleNumber, '.', '')))
+					)
+				) AS RuleNumberInt
+			FROM rules
+			WHERE RulesSectionID = $SectionID
+			HAVING RuleNumberInt >=
+					INET_ATON(
+						CONCAT(
+							'$RuleNumber',
+							REPEAT('.0', 4 - CHAR_LENGTH('$RuleNumber') + CHAR_LENGTH(REPLACE('$RuleNumber', '.', '')))
+						)
+					)
+			ORDER BY RuleNumberInt
+			");
+		$Rules = G::$DB->to_array(false, MYSQLI_ASSOC);
+		$RuleDepth = self::calculate_rule_depth($RuleNumber);
+
+		// Loop through the rules to recalculate rule numbers
+		foreach ($Rules as $k => $Rule) {
+			$ThisRuleDepth = self::calculate_rule_depth($Rule['RuleNumber']);
+
+			// Stop if we get to a parent rule depth
+			if ($ThisRuleDepth < $RuleDepth) {
+				break;
+			}
+
+			// If we delete a rule that has subrules, don't do any renumbering.
+			// If we tried to do renumbering we would end up with confusing behavior
+			// by either deleting subrules or merging them into a different heading.
+			if ($Offset === -1 && $k == 0 && $ThisRuleDepth != $RuleDepth) {
+				return true;
+			}
+
+			$RuleParts = explode('.', $Rule['RuleNumber']);
+			$RuleParts[$RuleDepth] += $Offset;
+			$Rules[$k]['RuleNumber'] = implode('.', $RuleParts);
+			$StopKey = $k;
+		}
+
+		// Don't allow the UPDATE loop to stop if we need to renumber all items
+		if ($StopKey == count($Rules)-1) {
+			$StopKey = -1;
+		}
+
+		// Update the records in reverse order to avoid
+		// violating (RuleSectionID, RuleNumber) UNIQUE KEY
+		if ($Offset === 1) {
+			$Rules = array_reverse($Rules);
+			$StopKey = ($StopKey != -1 ? (count($Rules) - $StopKey) : $StopKey);
+		}
+
+		foreach ($Rules as $k => $Rule) {
+			G::$DB->query("UPDATE rules SET RuleNumber = $Rule[RuleNumber] WHERE RuleID = $Rule[RuleID]");
+			if ($k == $StopKey) {
+				break;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Deletes a rule from the database and then renumbers the 
+	 * remaining rules in that section
+	 *
+	 * @param int $RuleID
+	 */
+	public static function delete_rule($RuleID) {
+		$RuleID = (int) $RuleID;
+		G::$DB->query('SELECT RulesSectionID, RuleNumber FROM rules WHERE RuleID = '.$RuleID);
+		list($SectionID, $RuleNumber) = G::$DB->next_record(MYSQLI_NUM);
+		G::$DB->query('DELETE FROM rules WHERE RuleID='.$RuleID);
+		self::renumber($SectionID, $RuleNumber, -1);
+		G::$Cache->delete_value('section_'.$SectionID.'_rules');
+	}
+
+	/**
+	 * Validates the form input and then creates the rule, renumbering the rules
+	 * in that section if the new rule collides with a pre-existing rule number
+	 *
+	 * @param array $Fields of input data
+	 */
+	public static function create_rule($Fields) {
+		$Val = new VALIDATE();
+		$Val->SetFields('section_id', '1', 'number', 'The rules section id must be set', array('minlength'=>1));
+		$Val->SetFields('rule_number', '1', 'string', 'The rule name must be set and has a max length of 16 characters', array('minlength'=>1,'maxlength'=>16));
+		$Val->SetFields('description', '0', 'string', 'The description has a max length of 65,535 characters', array('maxlength'=>65535));
+		$Err = $Val->ValidateForm($Fields); // Validate the form
+		if ($Err) {
+			error($Err);
+		}
+
+		$P = array();
+		$P = db_array($Fields); // Sanitize the form
+
+		// Set the heading attribute
+		$P['heading'] = (empty($P['heading']) ? 0 : 1);
+
+		// Check if this new rule addition collides with a pre-existing rule with the same rule number
+		G::$DB->query("
+			SELECT RuleID, RuleNumber FROM rules
+			WHERE RulesSectionID = $P[section_id] AND RuleNumber = '$P[rule_number]'");
+		$PreExistingRule = G::$DB->next_record(MYSQLI_ASSOC);
+		if ($PreExistingRule) {
+			self::renumber($P['section_id'], $P['rule_number'], 1);
+		}
+
+		G::$DB->query("
+			INSERT INTO rules (RulesSectionID, RuleNumber, Heading, Description)
+			VALUES ('$P[section_id]','$P[rule_number]',$P[heading],'$P[description]')");
+
+		G::$Cache->delete_value('section_'.$P['section_id'].'_rules');
+	}
+
+	/**
+	 * Validates the form input and then edits the rule
+	 *
+	 * @param array $Fields of input data
+	 */
+	public static function edit_rule($Fields) {
+		$Val = new VALIDATE();
+		$Val->SetFields('id', '1', 'number', 'The rule section id must be set', array('minlength'=>1));
+		$Val->SetFields('section_id', '1', 'number', 'The rules section id must be set', array('minlength'=>1));
+		$Val->SetFields('rule_number', '1', 'string', 'The rule name must be set and has a max length of 16 characters', array('minlength'=>1,'maxlength'=>16));
+		$Val->SetFields('description', '0', 'string', 'The description has a max length of 65,535 characters', array('maxlength'=>65535));
+		$Err = $Val->ValidateForm($Fields); // Validate the form
+		if ($Err) {
+			error($Err);
+		}
+
+		$P = array();
+		$P = db_array($Fields); // Sanitize the form
+
+		// Set the heading attribute
+		$P['heading'] = (empty($P['heading']) ? 0 : 1);
+
+		// Update the rule
+		G::$DB->query("
+			UPDATE rules
+			SET
+				RulesSectionID='$P[section_id]',
+				RuleNumber='$P[rule_number]',
+				Heading='$P[heading]',
+				Description='$P[description]'
+			WHERE RuleID=$P[id]");
+
+		// Delete the rules cache for this rules section
+		G::$DB->query('
+			SELECT RulesSectionID
+			FROM rules
+			WHERE RuleID='.$P['id']);
+		$Section = G::$DB->to_array(false, MYSQLI_ASSOC);
+		G::$Cache->delete_value('section_'.$Section['RulesSectionID'].'_rules');
+	}
+
+	/**
+	 * Deletes a section from the database. Foreign key constraint
+	 * will also delete any rules belonging to this section.
+	 *
+	 * @param int $SectionID
+	 */
+	public static function delete_section($SectionID) {
+		$SectionID = (int) $SectionID;
+		G::$DB->query('DELETE FROM rules_sections WHERE RulesSectionID='.$SectionID);
+		G::$Cache->delete_value('section_'.$SectionID);
+		G::$Cache->delete_value('section_'.$SectionID.'_rules');
+		G::$Cache->delete_value('rules_sections');
+		G::$Cache->delete_value('default_rules_section_id');
+	}
+
+	/**
+	 * Validates the form input and then creates the section
+	 *
+	 * @param array $Fields of input data
+	 */
+	public static function create_section($Fields) {
+		$Val = new VALIDATE();
+		$Val->SetFields('section_name', '1', 'string', 'The section name must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('language', '1', 'string', 'The language name must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('position', '0', 'number', 'The position must be number between 1 and 128', array('minlength'=>1,'maxlength'=>128));
+		$Val->SetFields('slug', '0', 'string', 'The slug must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('description', '0', 'string', 'The description has a max length of 255 characters', array('maxlength'=>255));
+		$Err = $Val->ValidateForm($Fields); // Validate the form
+		if ($Err) {
+			error($Err);
+		}
+
+		// Set has_filter and has_toc fields
+		$Fields['has_filter'] = (empty($Fields['has_filter']) ? 0 : 1);
+		$Fields['has_toc'] = (empty($Fields['has_toc']) ? 0 : 1);
+
+		$P = array();
+		$P = db_array($Fields); // Sanitize the form
+		$P['language'] = ucwords(strtolower($P['language']));
+
+		G::$DB->query("
+			INSERT INTO rules_sections (SectionName, Language, Position, Description)
+			VALUES ('$P[section_name]','$P[language]','$P[position]','$P[description]')");
+
+		// Ensure that translated rules sections use the same position value and slug as the english version
+		if ($P['language'] != 'English') {
+			$InsertedID = G::$DB->inserted_id();
+			G::$DB->query("
+				UPDATE rules_sections a, rules_sections b
+				SET a.Position=b.Position, a.Slug=b.Slug
+				WHERE a.SectionName='$P[section_name]'
+					AND b.SectionName='$P[section_name]'
+					AND b.Language='English'
+					AND a.Language!='English'");
+		}
+
+		// Delete the cache values so the cache gets updated next time this data is needed
+		G::$Cache->delete_value('rules_sections');
+		if( $P['position'] == 1 && $P['language'] == 'English' ) {
+			G::$Cache->delete_value('default_rules_section_id');
+		}
+	}
+
+
+	/**
+	 * Validates the form input and then edits the section
+	 *
+	 * @param array $Fields of input data
+	 */
+	public static function edit_section($Fields) {
+		$Val = new VALIDATE();
+		$Val->SetFields('id', '1', 'number', 'The section id must be set', array('minlength'=>1));
+		$Val->SetFields('section_name', '1', 'string', 'The section name must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('language', '1', 'string', 'The language name must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('position', '0', 'number', 'The position must be number between 1 and 128', array('minlength'=>1,'maxlength'=>128));
+		$Val->SetFields('slug', '0', 'string', 'The slug must be set and has a max length of 32 characters', array('minlength'=>1,'maxlength'=>32));
+		$Val->SetFields('description', '0', 'string', 'The description has a max length of 255 characters', array('maxlength'=>255));
+		$Err = $Val->ValidateForm($Fields); // Validate the form
+		if ($Err) {
+			error($Err);
+		}
+
+		// Set has_filter and has_toc fields
+		$Fields['has_filter'] = (empty($Fields['has_filter']) ? 0 : 1);
+		$Fields['has_toc'] = (empty($Fields['has_toc']) ? 0 : 1);
+
+		$P = array();
+		$P = db_array($Fields); // Sanitize the form
+		$P['language'] = ucwords(strtolower($P['language']));
+
+		// Update the rules section
+		G::$DB->query("
+			UPDATE rules_sections
+			SET
+				SectionName='$P[section_name]',
+				Language='$P[language]',
+				Position='$P[position]',
+				Slug='$P[slug]',
+				HasFilter=$P[has_filter],
+				HasTableOfContents=$P[has_toc],
+				Description='$P[description]'
+			WHERE RulesSectionID='$P[id]'");
+
+		// Ensure that translated rules sections use the same position value and slug as the english version
+		G::$DB->query("
+			UPDATE rules_sections a, rules_sections b
+			SET a.Position=b.Position, a.Slug=b.Slug
+			WHERE a.SectionName='$P[section_name]'
+				AND b.SectionName='$P[section_name]'
+				AND b.Language='English'
+				AND a.Language!='English'");
+
+		G::$Cache->delete_value('section_'.$P['id']);
+		G::$Cache->delete_value('rules_sections');
+		G::$Cache->delete_value('default_rules_section_id');
 	}
 }

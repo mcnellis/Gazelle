@@ -649,3 +649,74 @@ tr.torrent .bookmark>a:after {
 .field_div:last-of-type {
 	margin-bottom: 0;
 }
+
+/*
+ * When it's necessary for each row of a table to be a form,
+ * we can achieve the table layout using <div> tags which 
+ * allows us to achieve this solution with valid HTML.
+ * Source: http://stackoverflow.com/a/9348667
+*/
+.table {
+  border-left: 1px solid #000;
+  border-top: 1px solid #000;
+	display: table;
+} 
+
+.table > * {
+	display: table-row;
+}
+
+.table > * > * {
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+	display: table-cell;
+  padding: 5px;
+}
+
+ol#table_of_contents {
+	list-style: none;
+	margin-top: 20px;
+	padding: 20px 20px 20px 0;
+}
+
+ol#table_of_contents > li {
+	margin: 5px 0 0 0;
+	padding: 0;
+	font-weight: bold;
+}
+
+ol#table_of_contents > li > a > span {
+	font-weight: normal;
+}
+
+#actual_rules {
+	list-style: none;
+}
+
+#actual_rules > li > h4 {
+	margin-top: 20px;
+}
+
+#actual_rules ul > li {
+	margin: 0 0 0 40px;
+}
+
+.rule_depth_0 {
+	margin-left: 20px !important;
+}
+
+.rule_depth_1 {
+	margin-left: 30px !important;
+}
+
+.rule_depth_2 {
+	margin-left: 40px !important;
+}
+
+.rule_depth_3 {
+	margin-left: 50px !important;
+}
+
+.rule_depth_4 {
+	margin-left: 60px !important;
+}

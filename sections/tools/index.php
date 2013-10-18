@@ -334,6 +334,14 @@ switch ($_REQUEST['action']) {
 
 		break;
 
+	case 'rules':
+		include(SERVER_ROOT.'/sections/tools/managers/rules.php');
+		break;
+
+	case 'rules_alter':
+		include(SERVER_ROOT.'/sections/tools/managers/rules_alter.php');
+		break;
+
 	case 'ip_ban':
 		//TODO: Clean up DB table ip_bans.
 		include(SERVER_ROOT.'/sections/tools/managers/bans.php');

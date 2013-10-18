@@ -770,6 +770,31 @@ CREATE TABLE `requests_votes` (
   KEY `Bounty` (`Bounty`)
 ) ENGINE=InnoDB CHARSET utf8;
 
+CREATE TABLE `rules_sections` (
+  `RulesSectionID` int(10) NOT NULL AUTO_INCREMENT,
+  `SectionName` varchar(32) NOT NULL,
+  `Language` varchar(32) NOT NULL DEFAULT 'English'
+  `Position` tinyint(3) UNSIGNED NOT NULL,
+  `Slug` varchar(32) NOT NULL,
+  `Description` varchar(255) NOT NULL DEFAULT '',
+  `HasFilter` tinyint(1) NOT NULL DEFAULT 0,
+  `HasTableOfContents` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`RulesSectionID`),
+  UNIQUE KEY `SectionNameLanguage` (`SectionName`,`Language`),
+  UNIQUE KEY `Slug` (`Slug`)
+) ENGINE=InnoDB CHARSET utf8;
+
+CREATE TABLE `rules` (
+  `RuleID` int(10) NOT NULL AUTO_INCREMENT,
+  `RulesSectionID` int(10) NOT NULL,
+  `RuleNumber` varchar(16) NOT NULL,
+  `Heading` tinyint(1) NOT NULL DEFAULT 0,
+  `Description` text NOT NULL DEFAULT '',
+  PRIMARY KEY (`RuleID`),
+  UNIQUE KEY `RulesSectionID_RuleNumber` (`RulesSectionID`,`RuleNumber`),
+  CONSTRAINT `rules_ibfk_1` FOREIGN KEY (`RulesSectionID`) REFERENCES `rules_sections` (`RulesSectionID`) ON DELETE CASCADE
+) ENGINE=InnoDB CHARSET utf8;
+
 CREATE TABLE `schedule` (
   `NextHour` int(2) NOT NULL DEFAULT '0',
   `NextDay` int(2) NOT NULL DEFAULT '0',
